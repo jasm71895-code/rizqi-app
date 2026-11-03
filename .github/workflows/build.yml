@@ -1,4 +1,5 @@
-name: Build Rizqi App
+name: rizqi_app
+
 
 on:
   push:
