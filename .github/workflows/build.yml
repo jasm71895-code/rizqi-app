@@ -1,5 +1,4 @@
-name: rizqi_app
-
+name: Build Rizqi App
 
 on:
   push:
@@ -23,9 +22,6 @@ jobs:
         with:
           flutter-version: '3.19.x'
           channel: 'stable'
-
-      - name: Create Android Scaffolding
-        run: flutter create . --platforms=android --org com.rizqi.app
 
       - name: Install dependencies
         run: flutter pub get
