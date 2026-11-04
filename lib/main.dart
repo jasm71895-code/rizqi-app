@@ -119,6 +119,7 @@ class _RizqiHomeDashboardState extends State<RizqiHomeDashboard> {
                 _buildSectionCard(context, 'المنتجات', Icons.shopping_bag, Colors.orange),
                 _buildSectionCard(context, 'الطلبات', Icons.list_alt, Colors.blue),
                 _buildSectionCard(context, 'المسوقين', Icons.group, Colors.purple),
+                _buildSectionCard, // سيتم تصحيحها للسطر التالي
                 _buildSectionCard(context, 'الإعدادات', Icons.settings, Colors.teal),
               ],
             ),
