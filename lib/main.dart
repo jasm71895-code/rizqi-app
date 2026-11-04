@@ -13,30 +13,37 @@ class RizqiApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'رزقي | RIZQI',
       theme: ThemeData(
-        primarySwatch: Colors.teal,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
         useMaterial3: true,
       ),
-      home: const RizqiHomePage(),
+      home: const RizqiHomeDashboard(),
     );
   }
 }
 
-class RizqiHomePage extends StatefulWidget {
-  const RizqiHomePage({super.key});
+class RizqiHomeDashboard extends StatefulWidget {
+  const RizqiHomeDashboard({super.key});
 
   @override
-  State<RizqiHomePage> createState() => _RizqiHomePageState();
+  State<RizqiHomeDashboard> createState() => _RizqiHomeDashboardState();
 }
 
-class _RizqiHomePageState extends State<RizqiHomePage> {
-  double _sales = 0.0;
-  double _profit = 0.0;
+class _RizqiHomeDashboardState extends State<RizqiHomeDashboard> {
+  final TextEditingController _salesController = TextEditingController();
+  double _totalSales = 0.0;
+  double _totalProfit = 0.0;
 
-  void _calculate(String value) {
+  void _calculateProfit(String value) {
     setState(() {
-      _sales = double.tryParse(value) ?? 0.0;
-      _profit = _sales * 0.15; // حساب عمولة 15%
+      _totalSales = double.tryParse(value) ?? 0.0;
+      _totalProfit = _totalSales * 0.15; // حساب عمولة التسويق 15%
     });
+  }
+
+  @override
+  void dispose() {
+    _salesController.dispose();
+    super.dispose();
   }
 
   @override
@@ -47,12 +54,14 @@ class _RizqiHomePageState extends State<RizqiHomePage> {
         backgroundColor: Colors.teal,
         foregroundColor: Colors.white,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
-        child: ListView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // بطاقة الأرباح
+            // بطاقة الأرباح العلوية
             Container(
+              width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Colors.teal.shade700,
@@ -67,7 +76,7 @@ class _RizqiHomePageState extends State<RizqiHomePage> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '${_profit.toStringAsFixed(2)} د.ع',
+                    '${_totalProfit.toStringAsFixed(2)} د.ع',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 28,
@@ -78,38 +87,39 @@ class _RizqiHomePageState extends State<RizqiHomePage> {
               ),
             ),
             const SizedBox(height: 20),
-            
-            // حقل إدخال المبيعات
+
+            // حقل إدخال المبيعات التفاعلي
             TextField(
+              controller: _salesController,
               keyboardType: TextInputType.number,
-              onChanged: _calculate,
+              onChanged: _calculateProfit,
               decoration: const InputDecoration(
-                labelText: 'أدخل قيمة المبيعات',
+                labelText: 'أدخل قيمة المبيعات (د.ع)',
                 border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.money),
+                prefixIcon: Icon(Icons.monetization_on),
               ),
             ),
-            const SizedBox(height: 20),
-            
+            const SizedBox(height: 24),
+
             const Text(
-              'أقسام التطبيق',
+              'أقسام المنصة',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 10),
-            
-            // شبكة الأقسام
+            const SizedBox(height: 12),
+
+            // شبكة الأقسام بتصميم عصري
             GridView.count(
               crossAxisCount: 2,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics,
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
-              childAspectRatio: 1.5,
+              childAspectRatio: 1.4,
               children: [
-                _card('المنتجات', Icons.shopping_bag, Colors.orange),
-                _card('الطلبات', Icons.list_alt, Colors.blue),
-                _card('المسوقين', Icons.group, Colors.purple),
-                _card('الإعدادات', Icons.settings, Colors.teal),
+                _buildSectionCard(context, 'المنتجات', Icons.shopping_bag, Colors.orange),
+                _buildSectionCard(context, 'الطلبات', Icons.list_alt, Colors.blue),
+                _buildSectionCard(context, 'المسوقين', Icons.group, Colors.purple),
+                _buildSectionCard(context, 'الإعدادات', Icons.settings, Colors.teal),
               ],
             ),
           ],
@@ -118,21 +128,26 @@ class _RizqiHomePageState extends State<RizqiHomePage> {
     );
   }
 
-  Widget _card(String title, IconData icon, Color color) {
+  Widget _buildSectionCard(BuildContext context, String title, IconData icon, Color color) {
     return Card(
       elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         onTap: () {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('تم فتح قسم $title')),
           );
         },
+        borderRadius: BorderRadius.circular(12),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon, size: 32, color: color),
             const SizedBox(height: 8),
-            Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text(
+              title,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
           ],
         ),
       ),
