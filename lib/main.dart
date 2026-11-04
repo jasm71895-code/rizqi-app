@@ -5,7 +5,7 @@ void main() {
 }
 
 class RizqiApp extends StatelessWidget {
-  const RizqiApp({Key? key}) : super(key: key);
+  const RizqiApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -14,30 +14,28 @@ class RizqiApp extends StatelessWidget {
       title: 'رزقي | RIZQI',
       theme: ThemeData(
         primarySwatch: Colors.teal,
-        scaffoldBackgroundColor: const Color(0xFFF8F9FA),
+        useMaterial3: true,
       ),
-      home: const RizqiHomeDashboard(),
+      home: const RizqiHomePage(),
     );
   }
 }
 
-class RizqiHomeDashboard extends StatefulWidget {
-  const RizqiHomeDashboard({Key? key}) : super(key: key);
+class RizqiHomePage extends StatefulWidget {
+  const RizqiHomePage({super.key});
 
   @override
-  State<RizqiHomeDashboard> createState() => _RizqiHomeDashboardState();
+  State<RizqiHomePage> createState() => _RizqiHomePageState();
 }
 
-class _RizqiHomeDashboardState extends State<RizqiHomeDashboard> {
-  int _currentIndex = 0;
-  double _calculatedProfit = 0.0;
-  final TextEditingController _salesController = TextEditingController();
+class _RizqiHomePageState extends State<RizqiHomePage> {
+  double _sales = 0.0;
+  double _profit = 0.0;
 
-  // دالة حساب الأرباح بسلاسة ودون تعليق الواجهة
-  void _calculateEarnings(String value) {
+  void _calculate(String value) {
     setState(() {
-      double sales = double.tryParse(value) ?? 0.0;
-      _calculatedProfit = sales * 0.15; // نسبة عمولة تسويق 15%
+      _sales = double.tryParse(value) ?? 0.0;
+      _profit = _sales * 0.15; // حساب عمولة 15%
     });
   }
 
@@ -45,194 +43,99 @@ class _RizqiHomeDashboardState extends State<RizqiHomeDashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'منصة رزقي | RIZQI',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-        ),
-        backgroundColor: Colors.teal.shade700,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_active),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('لا توجد إشعارات جديدة حالياً')),
-              );
-            },
-          ),
-        ],
+        title: const Text('منصة رزقي | RIZQI'),
+        backgroundColor: Colors.teal,
+        foregroundColor: Colors.white,
       ),
-      body: SingleChildScrollView(
+      body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: ListView(
           children: [
-            // بطاقة الأرباح العلوية
+            // بطاقة الأرباح
             Container(
-              width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.teal.shade700, Colors.teal.shade400],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+                color: Colors.teal.shade700,
                 borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.teal.withOpacity(0.3),
-                    blurRadius: 10,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'مرحباً بكِ في لوحة التحكم',
-                    style: TextStyle(color: Colors.white70, fontSize: 14),
+                    'إجمالي الأرباح المتوقعة',
+                    style: TextStyle(color: Colors.white70, fontSize: 16),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    'إجمالي الأرباح المتوقعة',
-                    style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 12),
                   Text(
-                    '${_calculatedProfit.toStringAsFixed(2)} د.ع',
+                    '${_profit.toStringAsFixed(2)} د.ع',
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 32,
+                      fontSize: 28,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
             
-            // قسم حاسبة الأرباح التفاعلية
-            const Text(
-              'حاسبة الأرباح السريعة',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(color: Colors.grey.withOpacity(0.1), blurRadius: 5, spreadRadius: 2),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TextField(
-                    controller: _salesController,
-                    keyboardType: TextInputType.number,
-                    onChanged: _calculateEarnings,
-                    decoration: InputDecoration(
-                      labelText: 'أدخل قيمة المبيعات (د.ع)',
-                      prefixIcon: const Icon(Icons.monetization_on, color: Colors.teal),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'يتم حساب نسبة العمولة (15%) فوراً عند الكتابة.',
-                    style: TextStyle(color: Colors.grey, fontSize: 12),
-                  ),
-                ],
+            // حقل إدخال المبيعات
+            TextField(
+              keyboardType: TextInputType.number,
+              onChanged: _calculate,
+              decoration: const InputDecoration(
+                labelText: 'أدخل قيمة المبيعات',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.money),
               ),
             ),
-            const SizedBox(height: 24),
-
-            // شبكة الأزرار والأقسام
+            const SizedBox(height: 20),
+            
             const Text(
-              'أقسام المنصة والتحكم',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+              'أقسام التطبيق',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
+            
+            // شبكة الأقسام
             GridView.count(
               crossAxisCount: 2,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              childAspectRatio: 1.3,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1.5,
               children: [
-                _buildFeatureCard(context, 'المنتجات', Icons.shopping_bag, Colors.orange, () {
-                  _showMsg(context, 'تم فتح قسم إدارة المنتجات');
-                }),
-                _buildFeatureCard(context, 'الطلبات', Icons.list_alt, Colors.blue, () {
-                  _showMsg(context, 'تم فتح تتبع حالات الطلبات');
-                }),
-                _buildFeatureCard(context, 'المسوقين', Icons.group, Colors.purple, () {
-                  _showMsg(context, 'تم فتح شبكة المسوقين بالعمولة');
-                }),
-                _buildFeatureCard(context, 'الإعدادات', Icons.settings, Colors.teal, () {
-                  _showMsg(context, 'تم فتح لوحة الإعدادات العامة');
-                }),
+                _card('المنتجات', Icons.shopping_bag, Colors.orange),
+                _card('الطلبات', Icons.list_alt, Colors.blue),
+                _card('المسوقين', Icons.group, Colors.purple),
+                _card('الإعدادات', Icons.settings, Colors.teal),
               ],
             ),
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        selectedItemColor: Colors.teal.shade700,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'الرئيسية'),
-          BottomNavigationBarItem(icon: Icon(Icons.analytics), label: 'الأرباح'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'حسابي'),
-        ],
-      ),
     );
   }
 
-  Widget _buildFeatureCard(BuildContext context, String title, IconData icon, Color color, VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(color: Colors.grey.withOpacity(0.1), blurRadius: 5, spreadRadius: 1),
-          ],
-        ),
+  Widget _card(String title, IconData icon, Color color) {
+    return Card(
+      elevation: 2,
+      child: InkWell(
+        onTap: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('تم فتح قسم $title')),
+          );
+        },
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircleAvatar(
-              backgroundColor: color.withOpacity(0.1),
-              child: Icon(icon, color: color),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87),
-            ),
+            Icon(icon, size: 32, color: color),
+            const SizedBox(height: 8),
+            Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
           ],
         ),
       ),
-    );
-  }
-
-  void _showMsg(BuildContext context, String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg), duration: const Duration(seconds: 1)),
     );
   }
 }
