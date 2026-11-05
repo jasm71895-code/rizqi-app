@@ -4,7 +4,6 @@ void main() {
   runApp(const RizqiApp());
 }
 
-// نموذج بيانات المنتج
 class ProductItem {
   final String title;
   final String price;
@@ -21,7 +20,6 @@ class ProductItem {
   });
 }
 
-// نموذج الإعلانات الترويجية داخل التطبيق
 class AdBanner {
   final String title;
   final String description;
@@ -30,16 +28,14 @@ class AdBanner {
   AdBanner({required this.title, required this.description, required this.backgroundColor});
 }
 
-// نموذج الإشعارات الفورية
 class AppNotification {
   final String title;
-  final String body;
+  final String description;
   final String time;
 
-  AppNotification({required this.title, required this.body, required this.time});
+  AppNotification({required this.title, required this.description, required this.time});
 }
 
-// القوائم العامة المتحدثة ديناميكياً
 List<ProductItem> globalProducts = [
   ProductItem(title: 'سماعات بلوتوث ذكية', price: '35,000 د.ع', commission: 'عمولة المسوق: 5,000 د.ع', sellerName: 'متجر التقنية'),
   ProductItem(title: 'حقيبة ظهر أنيقة', price: '25,000 د.ع', commission: 'عمولة المسوق: 4,000 د.ع', sellerName: 'أزياء بغداد'),
@@ -78,7 +74,6 @@ class RizqiApp extends StatelessWidget {
   }
 }
 
-// 1. شاشة تسجيل الدخول
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -165,7 +160,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-// 2. شاشة التنقل الرئيسية والشريط السفلي
 class MainScreen extends StatefulWidget {
   final String userName;
   final bool isMerchant;
@@ -211,7 +205,6 @@ class _MainScreenState extends State<MainScreen> {
   }
 }
 
-// 3. الصفحة الرئيسية مع عرض الإعلانات الترويجية
 class HomeScreen extends StatelessWidget {
   final String userName;
   final bool isMerchant;
@@ -223,11 +216,10 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: Text('أهلاً، $userName${isMerchant ? '(تاجر)' : ''}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        title: Text('أهلاً، $userName ${isMerchant ? '(تاجر)' : ''}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
         backgroundColor: Colors.teal,
         foregroundColor: Colors.white,
         actions: [
-          // زر الإشعارات الفورية
           IconButton(
             icon: const Icon(Icons.notifications_active_outlined),
             onPressed: () {
@@ -241,7 +233,6 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // قسم عرض الإعلانات الترويجية المتحركة أو المتعددة
             const Text('الإعلانات والعروض الترويجية', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             SizedBox(
@@ -296,7 +287,6 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// 4. شاشة عرض الإشعارات الفورية (للطلبات والأحداث)
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});
 
@@ -340,7 +330,6 @@ class NotificationsScreen extends StatelessWidget {
   }
 }
 
-// 5. شاشة إضافة إعلان جديد (خاص بالإدارة/التجار)
 class AddAdScreen extends StatefulWidget {
   const AddAdScreen({super.key});
 
@@ -403,7 +392,6 @@ class _AddAdScreenState extends State<AddAdScreen> {
   }
 }
 
-// 6. قسم الشكاوى والدعم الفني بالذكاء الاصطناعي
 class SupportAIScreen extends StatefulWidget {
   const SupportAIScreen({super.key});
 
@@ -412,5 +400,156 @@ class SupportAIScreen extends StatefulWidget {
 }
 
 class _SupportAIScreenState extends State<SupportAIScreen> {
+  final List<ChatMessage> _messages = [
+    ChatMessage(text: 'أهلاً بكِ في مركز الدعم والشكاوى لـ منصة رزقي! 🤖\nكيف يمكنني مساعدتك اليوم بخصوص الطلبات أو الإشعارات؟', isUser: false),
+  ];
+  final _textController = TextEditingController();
 
-  
+  void _sendMessage() {
+    if (_textController.text.trim().isEmpty) return;
+
+    final userText = _textController.text;
+    setState(() {
+      _messages.add(ChatMessage(text: userText, isUser: true));
+      _textController.clear();
+    });
+
+    Future.delayed(const Duration(milliseconds: 800), () {
+      if (!mounted) return;
+      String aiResponse = 'تم تسجيل استفسارك/شكواكِ بنجاح وسيتم إرسال إشعار فوري بالمتابعة!';
+      if (userText.contains('طلب') || userText.contains('إشعار')) {
+        aiResponse = 'يتم إرسال إشعار فوري لكل طلب جديد يتم تسجيله عبر المنصة لتتم متابعته من قبل التاجر فوراً.';
+      } else if (userText.contains('إعلان')) {
+        aiResponse = 'يمكنك إضافة وإدارة الإعلانات الترويجية بسهولة من خلال لوحة التحكم الخاصة بحسابك.';
+      }
+
+      setState(() {
+        _messages.add(ChatMessage(text: aiResponse, isUser: false));
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('المساعد الذكي للشكاوى والدعم'),
+        backgroundColor: Colors.teal,
+        foregroundColor: Colors.white,
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: _messages.length,
+              itemBuilder: (context, index) {
+                final msg = _messages[index];
+                return Align(
+                  alignment: msg.isUser ? Alignment.centerRight : Alignment.centerLeft,
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(vertical: 4),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: msg.isUser ? Colors.teal : Colors.teal[50],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      msg.text,
+                      style: TextStyle(color: msg.isUser ? Colors.white : Colors.black87),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _textController,
+                    decoration: InputDecoration(
+                      hintText: 'اكتبي شكواكِ أو استفساركِ هنا...',
+                      filled: true,
+                      fillColor: Colors.grey[200],
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(Icons.send, color: Colors.teal),
+                  onPressed: _sendMessage,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class AddProductMerchantScreen extends StatefulWidget {
+  final String merchantName;
+  const AddProductMerchantScreen({super.key, required this.merchantName});
+
+  @override
+  State<AddProductMerchantScreen> createState() => _AddProductMerchantScreenState();
+}
+
+class _AddProductMerchantScreenState extends State<AddProductMerchantScreen> {
+  final _titleController = TextEditingController();
+  final _priceController = TextEditingController();
+  final _commissionController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('إضافة منتج جديد (خاص بالتجار)'),
+        backgroundColor: Colors.teal,
+        foregroundColor: Colors.white,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ListView(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(color: Colors.orange[50], borderRadius: BorderRadius.circular(8)),
+              child: const Row(
+                children: [
+                  Icon(Icons.info_outline, color: Colors.orange),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'تنبيه: يتم اقتطاع رسم المنصة (3,000 د.ع) وإرسال إشعار فوري لجميع المسوقين.',
+                      style: TextStyle(fontSize: 12, color: Colors.black87),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _titleController,
+              decoration: const InputDecoration(labelText: 'اسم المنتج', prefixIcon: Icon(Icons.shopping_bag)),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _priceController,
+              decoration: const InputDecoration(labelText: 'سعر البيع (مثال: 30,000 د.ع)', prefixIcon: Icon(Icons.money)),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _commissionController,
+              decoration: const InputDecoration(labelText: 'عمولة المسوق (مثال: 5,000 د.ع)', prefixIcon: Icon(Icons.card_giftcard)),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.teal,
+                foregroundColor: Colors.w
