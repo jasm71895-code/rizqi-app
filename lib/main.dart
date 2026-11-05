@@ -8,14 +8,12 @@ class ProductItem {
   final String title;
   final String price;
   final String commission;
-  final String platformFee;
   final String sellerName;
 
   ProductItem({
     required this.title,
     required this.price,
     required this.commission,
-    this.platformFee = '3,000 د.ع',
     required this.sellerName,
   });
 }
@@ -213,7 +211,7 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: Text('أهلاً، $userName${isMerchant ? '(تاجر)' : ''}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        title: Text('أهلاً، $userName ${isMerchant ? '(تاجر)' : ''}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
         backgroundColor: Colors.teal,
         foregroundColor: Colors.white,
         actions: [
@@ -317,48 +315,6 @@ class NotificationsScreen extends StatelessWidget {
   }
 }
 
-class AddAdScreen extends StatefulWidget {
-  const AddAdScreen({super.key});
-
-  @override
-  State<AddAdScreen> createState() => _AddAdScreenState();
-}
-
-class _AddAdScreenState extends State<AddAdScreen> {
-  final _titleController = TextEditingController();
-  final _descController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('إضافة إعلان جديد'), backgroundColor: Colors.teal, foregroundColor: Colors.white),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(controller: _titleController, decoration: const InputDecoration(labelText: 'عنوان الإعلان')),
-            const SizedBox(height: 12),
-            TextField(controller: _descController, decoration: const InputDecoration(labelText: 'تفاصيل الإعلان')),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.teal, foregroundColor: Colors.white, minimumSize: const Size(double.infinity, 50)),
-              onPressed: () {
-                if (_titleController.text.isNotEmpty) {
-                  setState(() {
-                    globalAds.add(AdBanner(title: _titleController.text, description: _descController.text, backgroundColor: Colors.blueGrey));
-                  });
-                  Navigator.pop(context);
-                }
-              },
-              child: const Text('نشر الإعلان'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class SupportAIScreen extends StatefulWidget {
   const SupportAIScreen({super.key});
 
@@ -405,5 +361,144 @@ class _SupportAIScreenState extends State<SupportAIScreen> {
                     margin: const EdgeInsets.symmetric(vertical: 4),
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(color: msg.isUser ? Colors.teal : Colors.teal[50], borderRadius: BorderRadius.circular(12)),
-                    child: Text(msg.text,
-                                
+                    child: Text(msg.text, style: TextStyle(color: msg.isUser ? Colors.white : Colors.black87)),
+                  ),
+                );
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
+              children: [
+                Expanded(child: TextField(controller: _textController, decoration: const InputDecoration(hintText: 'اكتبي استفسارك...'))),
+                IconButton(icon: const Icon(Icons.send, color: Colors.teal), onPressed: _sendMessage),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class AddProductMerchantScreen extends StatefulWidget {
+  final String merchantName;
+  const AddProductMerchantScreen({super.key, required this.merchantName});
+
+  @override
+  State<AddProductMerchantScreen> createState() => _AddProductMerchantScreenState();
+}
+
+class _AddProductMerchantScreenState extends State<AddProductMerchantScreen> {
+  final _titleController = TextEditingController();
+  final _priceController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('إضافة منتج جديد (الرسم: 3,000 د.ع)'), backgroundColor: Colors.teal, foregroundColor: Colors.white),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ListView(
+          children: [
+            TextField(controller: _titleController, decoration: const InputDecoration(labelText: 'اسم المنتج')),
+            const SizedBox(height: 12),
+            TextField(controller: _priceController, decoration: const InputDecoration(labelText: 'السعر')),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.teal, foregroundColor: Colors.white, minimumSize: const Size(double.infinity, 50)),
+              onPressed: () {
+                if (_titleController.text.isNotEmpty) {
+                  setState(() {
+                    globalProducts.add(ProductItem(title: _titleController.text, price: _priceController.text, commission: '5,000 د.ع', sellerName: widget.merchantName));
+                  });
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('نشر المنتج ودفع الرسم'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ProductsScreen extends StatelessWidget {
+  const ProductsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('المنتجات'), backgroundColor: Colors.teal, foregroundColor: Colors.white),
+      body: GridView.builder(
+        padding: const EdgeInsets.all(16),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, crossAxisSpacing: 12, mainAxisSpacing: 12, childAspectRatio: 0.68),
+        itemCount: globalProducts.length,
+        itemBuilder: (context, index) => ProductCard(product: globalProducts[index]),
+      ),
+    );
+  }
+}
+
+class ProfileScreen extends StatelessWidget {
+  final String userName;
+  final bool isMerchant;
+
+  const ProfileScreen({super.key, required this.userName, required this.isMerchant});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('حسابي'), backgroundColor: Colors.teal, foregroundColor: Colors.white),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            const CircleAvatar(radius: 40, backgroundColor: Colors.teal, child: Icon(Icons.person, size: 50, color: Colors.white)),
+            const SizedBox(height: 12),
+            Text(userName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 24),
+            if (isMerchant) ...[
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.teal, foregroundColor: Colors.white, minimumSize: const Size(double.infinity, 50)),
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => AddProductMerchantScreen(merchantName: userName))),
+                child: const Text('إضافة منتج جديد (3,000 د.ع)'),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ProductCard extends StatelessWidget {
+  final ProductItem product;
+  const ProductCard({super.key, required this.product});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(child: Container(decoration: BoxDecoration(color: Colors.teal[50], borderRadius: const BorderRadius.vertical(top: Radius.circular(12))), child: const Center(child: Icon(Icons.shopping_bag, size: 40, color: Colors.teal)))),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(product.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13), maxLines: 1),
+                Text(product.price, style: const TextStyle(color: Colors.teal, fontSize: 12)),
+                Text('التاجر: ${product.sellerName}', style: const TextStyle(color: Colors.grey, fontSize: 9)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
