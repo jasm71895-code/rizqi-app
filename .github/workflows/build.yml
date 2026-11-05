@@ -35,6 +35,9 @@ jobs:
       - name: Accept Android licenses
         run: yes | flutter doctor --android-licenses
 
+      - name: Clean Flutter Cache
+        run: flutter clean
+
       - name: Build APK Release
         run: flutter build apk --release
         
