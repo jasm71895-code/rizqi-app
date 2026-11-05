@@ -30,6 +30,9 @@ jobs:
       - name: Accept Android licenses
         run: yes | flutter doctor --android-licenses
 
+      - name: Create Android Platform Files
+        run: flutter create . --platforms=android
+
       - name: Make Gradle Wrapper Executable
         run: chmod +x android/gradlew
 
