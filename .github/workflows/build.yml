@@ -27,9 +27,6 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Upgrade and Fix Android Project
-        run: flutter create . --platforms=android
-
       - name: Accept Android licenses
         run: yes | flutter doctor --android-licenses
 
