@@ -16,13 +16,13 @@ class RizqiApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
         useMaterial3: true,
       ),
-      home: const Scaffold(
+      home: Scaffold(
         appBar: AppBar(
-          title: Text('منصة رزقي | RIZQI'),
+          title: const Text('منصة رزقي | RIZQI'),
           backgroundColor: Colors.teal,
           foregroundColor: Colors.white,
         ),
-        body: Center(
+        body: const Center(
           child: Text(
             'مرحباً بك في تطبيق رزقي',
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.teal),
