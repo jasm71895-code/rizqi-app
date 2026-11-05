@@ -30,12 +30,16 @@ jobs:
       - name: Accept Android licenses
         run: yes | flutter doctor --android-licenses
 
-      - name: Generate Android and Configure Gradle
+      - name: Regenerate Android and Fix Gradle completely
         run: |
           rm -rf android
           flutter create . --platforms=android --project-name=rizqi_app
           sed -i 's|distributionUrl=.*|distributionUrl=https\\://services.gradle.org/distributions/gradle-8.4-bin.zip|g' android/gradle/wrapper/gradle-wrapper.properties
           sed -i 's/minSdkVersion.*/minSdkVersion 21/g' android/app/build.gradle
+          # إصلاح ملف build.gradle الرئيسي لمنع أخطاء التوافق جذرياً
+          if [ -f android/build.gradle ]; then
+            sed -i 's/allprojects {/allprojects {\n    repositories {\n        google()\n        mavenCentral()\n    }\n}/g' android/build.gradle
+          fi
 
       - name: Build APK Release
         run: flutter build apk --release
