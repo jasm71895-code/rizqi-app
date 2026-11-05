@@ -27,10 +27,10 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Clean and Regenerate Modern Android Project
+      - name: Clean and Regenerate Android Project Correctly
         run: |
           rm -rf android
-          flutter create . --platforms=android
+          flutter create . --platforms=android --project-name=rizqi_app
 
       - name: Accept Android licenses
         run: yes | flutter doctor --android-licenses
