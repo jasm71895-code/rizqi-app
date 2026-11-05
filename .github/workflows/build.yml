@@ -36,5 +36,5 @@ jobs:
         run: yes | flutter doctor --android-licenses
 
       - name: Build APK Release
-        run: flutter build apk --release
+        run: flutter build apk --release --verbose
         
