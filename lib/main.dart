@@ -15,13 +15,73 @@ class RizqiApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
         useMaterial3: true,
-        fontFamily: 'Cairo', // استخدام خط أنيق إذا توفر
       ),
-      home: const HomeScreen(),
+      home: const MainScreen(),
     );
   }
 }
 
+// شاشة التنقل الرئيسية التي تحتوي على الشريط السفلي
+class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
+
+  @override
+  State<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  int _currentIndex = 0;
+
+  // صفحات التطبيق الأربع
+  final List<Widget> _screens = [
+    const HomeScreen(),
+    const ProductsScreen(),
+    const CartScreen(),
+    const ProfileScreen(),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: _screens[_currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        selectedItemColor: Colors.teal,
+        unselectedItemColor: Colors.grey,
+        type: BottomNavigationBarType.fixed,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_outlined),
+            activeIcon: Icon(Icons.home),
+            label: 'الرئيسية',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.shopping_bag_outlined),
+            activeIcon: Icon(Icons.shopping_bag),
+            label: 'المنتجات',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.shopping_cart_outlined),
+            activeIcon: Icon(Icons.shopping_cart),
+            label: 'السلة',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline),
+            activeIcon: Icon(Icons.person),
+            label: 'حسابي',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// 1. الصفحة الرئيسية
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -64,12 +124,12 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: TextField(
+                child: const TextField(
                   decoration: InputDecoration(
                     hintText: 'ابحث عن منتج، قسم، أو عرض...',
-                    prefixIcon: const Icon(Icons.search, color: Colors.teal),
+                    prefixIcon: Icon(Icons.search, color: Colors.teal),
                     border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   ),
                 ),
               ),
@@ -170,7 +230,7 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// عنصر التصنيف الأفقية
+// عنصر التصنيف الأفقي
 class CategoryItem extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -202,7 +262,7 @@ class CategoryItem extends StatelessWidget {
   }
 }
 
-// بطاقة المنتج
+// بطاقة المنتج المشتركة
 class ProductCard extends StatelessWidget {
   final String title;
   final String price;
@@ -247,6 +307,160 @@ class ProductCard extends StatelessWidget {
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+// 2. صفحة المنتجات الكاملة
+class ProductsScreen extends StatelessWidget {
+  const ProductsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('جميع المنتجات للتسويق'),
+        backgroundColor: Colors.teal,
+        foregroundColor: Colors.white,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 0.75,
+          ),
+          itemCount: 6,
+          itemBuilder: (context, index) {
+            return ProductCard(
+              title: 'منتج رقم ${index + 1}',
+              price: '${(index + 2) * 10000} د.ع',
+              commission: 'عمولة: ${(index + 1) * 2000} د.ع',
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+// 3. صفحة سلة التسوق
+class CartScreen extends StatelessWidget {
+  const CartScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('سلة الطلبات'),
+        backgroundColor: Colors.teal,
+        foregroundColor: Colors.white,
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Icon(Icons.shopping_cart_outlined, size: 80, color: Colors.teal),
+            SizedBox(height: 16),
+            Text(
+              'سلة التسوق فارغة حالياً',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey),
+            ),
+            SizedBox(height: 8),
+            Text(
+              'أضيفي منتجات وابدئي بالبيع والربح!',
+              style: TextStyle(color: Colors.grey),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// 4. صفحة حسابي / لوحة المسوق
+class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('لوحة المسوق (حسابي)'),
+        backgroundColor: Colors.teal,
+        foregroundColor: Colors.white,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            const CircleAvatar(
+              radius: 40,
+              backgroundColor: Colors.teal,
+              child: Icon(Icons.person, size: 50, color: Colors.white),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'طيبة | مسوقة معتمدة',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildStatCard('إجمالي الأرباح', '125,000 د.ع', Colors.teal),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildStatCard('الطلبات الناجحة', '14 طلب', Colors.orange),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            ListTile(
+              leading: const Icon(Icons.link, color: Colors.teal),
+              title: const Text('روابط التسويق الخاصة بي'),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: () {},
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.account_balance_wallet, color: Colors.teal),
+              title: const Text('سحب الأرباح'),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: () {},
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.settings, color: Colors.teal),
+              title: const Text('إعدادات الحساب'),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: () {},
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatCard(String title, String value, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 13)),
+          const SizedBox(height: 8),
+          Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         ],
       ),
     );
