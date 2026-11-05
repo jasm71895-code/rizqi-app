@@ -4,6 +4,7 @@ void main() {
   runApp(const RizqiApp());
 }
 
+// نموذج بيانات المنتج
 class ProductItem {
   final String title;
   final String price;
@@ -20,9 +21,38 @@ class ProductItem {
   });
 }
 
+// نموذج الإعلانات الترويجية داخل التطبيق
+class AdBanner {
+  final String title;
+  final String description;
+  final Color backgroundColor;
+
+  AdBanner({required this.title, required this.description, required this.backgroundColor});
+}
+
+// نموذج الإشعارات الفورية
+class AppNotification {
+  final String title;
+  final String body;
+  final String time;
+
+  AppNotification({required this.title, required this.body, required this.time});
+}
+
+// القوائم العامة المتحدثة ديناميكياً
 List<ProductItem> globalProducts = [
   ProductItem(title: 'سماعات بلوتوث ذكية', price: '35,000 د.ع', commission: 'عمولة المسوق: 5,000 د.ع', sellerName: 'متجر التقنية'),
   ProductItem(title: 'حقيبة ظهر أنيقة', price: '25,000 د.ع', commission: 'عمولة المسوق: 4,000 د.ع', sellerName: 'أزياء بغداد'),
+];
+
+List<AdBanner> globalAds = [
+  AdBanner(title: '🔥 عروض الشهر للمسوقين', description: 'ضاعفي أرباحكِ هذا الأسبوع مع نسب عمولة مضاعفة على قسم التجميل والأزياء.', backgroundColor: Colors.teal),
+  AdBanner(title: '📢 إشعار هام للتجار', description: 'تخفيض رسم عرض المنتجات لفترة محدودة. أضيفي منتجاتكِ الآن لآلاف المسوقين.', backgroundColor: Colors.orange),
+];
+
+List<AppNotification> globalNotifications = [
+  AppNotification(title: 'طلب جديد!', description: 'تم تسجيل طلب جديد على منتج: سماعات بلوتوث ذكية.', time: 'منذ 5 دقائق'),
+  AppNotification(title: 'مرحباً بكِ في رزقي', description: 'تم تفعيل حسابكِ بنجاح في منصة التجار والمسوقين.', time: 'منذ ساعة'),
 ];
 
 class ChatMessage {
@@ -48,6 +78,7 @@ class RizqiApp extends StatelessWidget {
   }
 }
 
+// 1. شاشة تسجيل الدخول
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -134,6 +165,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
+// 2. شاشة التنقل الرئيسية والشريط السفلي
 class MainScreen extends StatefulWidget {
   final String userName;
   final bool isMerchant;
@@ -173,5 +205,212 @@ class _MainScreenState extends State<MainScreen> {
           BottomNavigationBarItem(icon: Icon(Icons.shopping_bag_outlined), activeIcon: Icon(Icons.shopping_bag), label: 'المنتجات'),
           BottomNavigationBarItem(icon: Icon(Icons.smart_toy_outlined), activeIcon: Icon(Icons.smart_toy), label: 'الدعم والشكاوى'),
           BottomNavigationBarItem(icon: Icon(Icons.person_outline), activeIcon: Icon(Icons.person), label: 'حسابي'),
+        ],
+      ),
+    );
+  }
+}
 
-          
+// 3. الصفحة الرئيسية مع عرض الإعلانات الترويجية
+class HomeScreen extends StatelessWidget {
+  final String userName;
+  final bool isMerchant;
+
+  const HomeScreen({super.key, required this.userName, required this.isMerchant});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey[100],
+      appBar: AppBar(
+        title: Text('أهلاً، $userName${isMerchant ? '(تاجر)' : ''}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        backgroundColor: Colors.teal,
+        foregroundColor: Colors.white,
+        actions: [
+          // زر الإشعارات الفورية
+          IconButton(
+            icon: const Icon(Icons.notifications_active_outlined),
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const NotificationsScreen()));
+            },
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // قسم عرض الإعلانات الترويجية المتحركة أو المتعددة
+            const Text('الإعلانات والعروض الترويجية', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 130,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: globalAds.length,
+                itemBuilder: (context, index) {
+                  final ad = globalAds[index];
+                  return Container(
+                    width: 280,
+                    margin: const EdgeInsets.only(left: 12),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: ad.backgroundColor,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(ad.title, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 6),
+                        Text(ad.description, style: const TextStyle(color: Colors.white70, fontSize: 12), maxLines: 2, overflow: TextOverflow.ellipsis),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text('أحدث المنتجات المعروضة', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 12),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 0.68,
+              ),
+              itemCount: globalProducts.length,
+              itemBuilder: (context, index) {
+                return ProductCard(product: globalProducts[index]);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// 4. شاشة عرض الإشعارات الفورية (للطلبات والأحداث)
+class NotificationsScreen extends StatelessWidget {
+  const NotificationsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('الإشعارات والتنبيهات'),
+        backgroundColor: Colors.teal,
+        foregroundColor: Colors.white,
+      ),
+      body: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: globalNotifications.length,
+        itemBuilder: (context, index) {
+          final notif = globalNotifications[index];
+          return Card(
+            elevation: 1,
+            margin: const EdgeInsets.only(bottom: 12),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            child: ListTile(
+              leading: const CircleAvatar(
+                backgroundColor: Colors.teal,
+                child: Icon(Icons.notifications, color: Colors.white),
+              ),
+              title: Text(notif.title, style: const TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 4),
+                  Text(notif.description),
+                  const SizedBox(height: 4),
+                  Text(notif.time, style: const TextStyle(color: Colors.grey, fontSize: 10)),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+// 5. شاشة إضافة إعلان جديد (خاص بالإدارة/التجار)
+class AddAdScreen extends StatefulWidget {
+  const AddAdScreen({super.key});
+
+  @override
+  State<AddAdScreen> createState() => _AddAdScreenState();
+}
+
+class _AddAdScreenState extends State<AddAdScreen> {
+  final _titleController = TextEditingController();
+  final _descController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('إضافة إعلان ترويجي جديد'),
+        backgroundColor: Colors.teal,
+        foregroundColor: Colors.white,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: _titleController,
+              decoration: const InputDecoration(labelText: 'عنوان الإعلان', prefixIcon: Icon(Icons.title)),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _descController,
+              decoration: const InputDecoration(labelText: 'تفاصيل الإعلان أو العرض', prefixIcon: Icon(Icons.description)),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.teal,
+                foregroundColor: Colors.white,
+                minimumSize: const Size(double.infinity, 50),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              onPressed: () {
+                if (_titleController.text.isNotEmpty) {
+                  setState(() {
+                    globalAds.add(AdBanner(
+                      title: _titleController.text,
+                      description: _descController.text,
+                      backgroundColor: Colors.blueGrey,
+                    ));
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم نشر الإعلان بنجاح في الواجهة!')));
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('نشر الإعلان الآن', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// 6. قسم الشكاوى والدعم الفني بالذكاء الاصطناعي
+class SupportAIScreen extends StatefulWidget {
+  const SupportAIScreen({super.key});
+
+  @override
+  State<SupportAIScreen> createState() => _SupportAIScreenState();
+}
+
+class _SupportAIScreenState extends State<SupportAIScreen> {
+
+  
