@@ -36,7 +36,6 @@ jobs:
           flutter create . --platforms=android --project-name=rizqi_app
           sed -i 's|distributionUrl=.*|distributionUrl=https\\://services.gradle.org/distributions/gradle-8.4-bin.zip|g' android/gradle/wrapper/gradle-wrapper.properties
           sed -i 's/minSdkVersion.*/minSdkVersion 21/g' android/app/build.gradle
-          # إصلاح ملف build.gradle الرئيسي لمنع أخطاء التوافق جذرياً
           if [ -f android/build.gradle ]; then
             sed -i 's/allprojects {/allprojects {\n    repositories {\n        google()\n        mavenCentral()\n    }\n}/g' android/build.gradle
           fi
