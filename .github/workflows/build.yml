@@ -35,11 +35,10 @@ jobs:
           rm -rf android
           flutter create . --platforms=android --project-name=rizqi_app
           sed -i 's|distributionUrl=.*|distributionUrl=https\\://services.gradle.org/distributions/gradle-8.4-bin.zip|g' android/gradle/wrapper/gradle-wrapper.properties
-          # رفع الحد الأدنى لإصدار أندرويد إلى 21 لمنع فشل التجميع
           sed -i 's/minSdkVersion.*/minSdkVersion 21/g' android/app/build.gradle
 
       - name: Build APK Release
-        run: flutter build apk --release
+        run: flutter build apk --release --verbose
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
