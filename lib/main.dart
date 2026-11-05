@@ -4,7 +4,6 @@ void main() {
   runApp(const RizqiApp());
 }
 
-// نموذج بيانات المنتج
 class ProductItem {
   final String title;
   final String price;
@@ -21,13 +20,11 @@ class ProductItem {
   });
 }
 
-// قائمة المنتجات العامة
 List<ProductItem> globalProducts = [
   ProductItem(title: 'سماعات بلوتوث ذكية', price: '35,000 د.ع', commission: 'عمولة المسوق: 5,000 د.ع', sellerName: 'متجر التقنية'),
   ProductItem(title: 'حقيبة ظهر أنيقة', price: '25,000 د.ع', commission: 'عمولة المسوق: 4,000 د.ع', sellerName: 'أزياء بغداد'),
 ];
 
-// نموذج رسائل الشكاوى مع الذكاء الاصطناعي
 class ChatMessage {
   final String text;
   final bool isUser;
@@ -51,7 +48,6 @@ class RizqiApp extends StatelessWidget {
   }
 }
 
-// 1. شاشة تسجيل الدخول
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -138,7 +134,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-// 2. شاشة التنقل الرئيسية والشريط السفلي
 class MainScreen extends StatefulWidget {
   final String userName;
   final bool isMerchant;
@@ -184,7 +179,6 @@ class _MainScreenState extends State<MainScreen> {
   }
 }
 
-// 3. الصفحة الرئيسية
 class HomeScreen extends StatelessWidget {
   final String userName;
   final bool isMerchant;
@@ -196,7 +190,7 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: Text('أهلاً، $userName ${isMerchant ? '(تاجر)' : ''}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        title: Text('أهلاً، $userName${isMerchant ? '(تاجر)' : ''}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
         backgroundColor: Colors.teal,
         foregroundColor: Colors.white,
       ),
@@ -253,7 +247,6 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// 4. قسم الشكاوى والدعم الفني بالذكاء الاصطناعي
 class SupportAIScreen extends StatefulWidget {
   const SupportAIScreen({super.key});
 
@@ -277,6 +270,7 @@ class _SupportAIScreenState extends State<SupportAIScreen> {
     });
 
     Future.delayed(const Duration(milliseconds: 800), () {
+      if (!mounted) return;
       String aiResponse = 'تم استلام شكواكِ/استفساركِ بنجاح. سيقوم الذكاء الاصطناعي وفريق الدعم بمتابعة الحالة فوراً!';
       if (userText.contains('منتج') || userText.contains('إضافة')) {
         aiResponse = 'بخصوص إضافة المنتجات: يتكفل التاجر بدفع رسم منصة قدره 3,000 د.ع عند عرض كل منتج جديد، ويتم إدراجه فوراً للمسوقين.';
@@ -353,7 +347,6 @@ class _SupportAIScreenState extends State<SupportAIScreen> {
   }
 }
 
-// 5. شاشة إضافة منتج للتاجر مع اقتطاع ربح المنصة (3,000 د.ع)
 class AddProductMerchantScreen extends StatefulWidget {
   final String merchantName;
   const AddProductMerchantScreen({super.key, required this.merchantName});
@@ -416,137 +409,5 @@ class _AddProductMerchantScreenState extends State<AddProductMerchantScreen> {
                 backgroundColor: Colors.teal,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              onPressed: () {
-                if (_titleController.text.isNotEmpty && _priceController.text.isNotEmpty) {
-                  setState(() {
-                    globalProducts.add(ProductItem(
-                      title: _titleController.text,
-                      price: _priceController.text,
-                      commission: 'عمولة المسوق: ${_commissionController.text}',
-                      sellerName: widget.merchantName,
-                    ));
-                  });
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('تم إضافة المنتج بنجاح واقتطاع رسم المنصة (3,000 د.ع)!')),
-                  );
-                  Navigator.pop(context);
-                }
-              },
-              child: const Text('نشر المنتج ودفع رسم المنصة (3,000 د.ع)', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// 6. صفحة المنتجات العامة
-class ProductsScreen extends StatelessWidget {
-  const ProductsScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('كافة المنتجات المتاحة'), backgroundColor: Colors.teal, foregroundColor: Colors.white),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            childAspectRatio: 0.68,
-          ),
-          itemCount: globalProducts.length,
-          itemBuilder: (context, index) {
-            return ProductCard(product: globalProducts[index]);
-          },
-        ),
-      ),
-    );
-  }
-}
-
-// 7. صفحة حسابي
-class ProfileScreen extends StatelessWidget {
-  final String userName;
-  final bool isMerchant;
-
-  const ProfileScreen({super.key, required this.userName, required this.isMerchant});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('حسابي والخدمات'), backgroundColor: Colors.teal, foregroundColor: Colors.white),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            const CircleAvatar(
-              radius: 40,
-              backgroundColor: Colors.teal,
-              child: Icon(Icons.person, size: 50, color: Colors.white),
-            ),
-            const SizedBox(height: 12),
-            Text('$userName ${isMerchant ? "(حساب تاجر)" : "(حساب مسوق)"}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 24),
-            if (isMerchant)
-              ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.teal,
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size(double.infinity, 50),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                icon: const Icon(Icons.add_circle_outline),
-                label: const Text('إضافة منتج جديد كتاجر (+3,000 د.ع للمنصة)'),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => AddProductMerchantScreen(merchantName: userName)),
-                  );
-                },
-              ),
-            const SizedBox(height: 16),
-            ListTile(
-              leading: const Icon(Icons.logout, color: Colors.red),
-              title: const Text('تسجيل الخروج', style: TextStyle(color: Colors.red)),
-              onTap: () {
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// بطاقة عرض المنتج
-class ProductCard extends StatelessWidget {
-  final ProductItem product;
-
-  const ProductCard({super.key, required this.product});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.1), blurRadius: 5, spreadRadius: 1)],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(color: Colors.teal[50], borderRadius: const BorderRadius.vertical(top: Radius.circular(12))),
-              child: const Center(child: Icon(Icons.shopping_bag, size: 40, color: Colors.teal)),
-            ),
-          ),
-          Padding(
-            padding
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular
+                                              
