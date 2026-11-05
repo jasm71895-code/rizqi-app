@@ -30,8 +30,8 @@ jobs:
       - name: Accept Android licenses
         run: yes | flutter doctor --android-licenses
 
-      - name: Generate Android Files
-        run: flutter create . --platforms=android
+      - name: Generate Android Files Correctly
+        run: flutter create . --platforms=android --project-name=rizqi_app
 
       - name: Build APK Release
         run: flutter build apk --release
