@@ -27,6 +27,11 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Clean and Regenerate Modern Android Project
+        run: |
+          rm -rf android
+          flutter create . --platforms=android
+
       - name: Accept Android licenses
         run: yes | flutter doctor --android-licenses
 
