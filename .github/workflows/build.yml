@@ -24,13 +24,16 @@ jobs:
           flutter-version: '3.19.6'
           channel: 'stable'
 
-      - name: Clean and Get Dependencies
-        run: |
-          flutter clean
-          flutter pub get
+      - name: Install dependencies
+        run: flutter pub get
 
       - name: Accept Android licenses
         run: yes | flutter doctor --android-licenses
+
+      - name: Recreate Android Project Correctly
+        run: |
+          rm -rf android
+          flutter create . --platforms=android --project-name=rizqi_app
 
       - name: Build APK Release
         run: flutter build apk --release --no-pub
