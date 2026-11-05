@@ -24,6 +24,11 @@ jobs:
           flutter-version: '3.19.6'
           channel: 'stable'
 
+      - name: Recreate Android Project
+        run: |
+          rm -rf android
+          flutter create . --platforms=android --project-name=rizqi_app
+
       - name: Install dependencies
         run: flutter pub get
 
