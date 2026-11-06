@@ -30,7 +30,7 @@ jobs:
       - name: Accept Android licenses
         run: yes | flutter doctor --android-licenses
 
-      - name: Fix Android Environment and Gradle
+      - name: Clean and Regenerate Android Environment
         run: |
           rm -rf android
           flutter create . --platforms=android --project-name=rizqi_app
@@ -38,7 +38,7 @@ jobs:
           sed -i 's/minSdkVersion.*/minSdkVersion 21/g' android/app/build.gradle
 
       - name: Build APK Release
-        run: flutter build apk --release
+        run: flutter build apk --release --verbose
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
