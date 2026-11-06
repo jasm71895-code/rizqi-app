@@ -30,14 +30,12 @@ jobs:
       - name: Accept Android licenses
         run: yes | flutter doctor --android-licenses
 
-      - name: Configure Gradle Version Safely
+      - name: Fix Android Environment and Gradle
         run: |
-          if [ -f android/gradle/wrapper/gradle-wrapper.properties ]; then
-            sed -i 's|distributionUrl=.*|distributionUrl=https\\://services.gradle.org/distributions/gradle-8.4-bin.zip|g' android/gradle/wrapper/gradle-wrapper.properties
-          fi
-          if [ -f android/app/build.gradle ]; then
-            sed -i 's/minSdkVersion.*/minSdkVersion 21/g' android/app/build.gradle
-          fi
+          rm -rf android
+          flutter create . --platforms=android --project-name=rizqi_app
+          sed -i 's|distributionUrl=.*|distributionUrl=https\\://services.gradle.org/distributions/gradle-8.4-bin.zip|g' android/gradle/wrapper/gradle-wrapper.properties
+          sed -i 's/minSdkVersion.*/minSdkVersion 21/g' android/app/build.gradle
 
       - name: Build APK Release
         run: flutter build apk --release
@@ -47,3 +45,4 @@ jobs:
         with:
           name: app-release
           path: build/app/outputs/flutter-apk/*.apk
+          
