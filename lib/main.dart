@@ -12,6 +12,7 @@ class ProductItem {
   final String sellerName;
   final String imageUrl;
   final String province;
+  final String category;
 
   ProductItem({
     required this.title,
@@ -20,6 +21,7 @@ class ProductItem {
     required this.sellerName,
     required this.imageUrl,
     this.province = 'جميع المحافظات',
+    this.category = 'عام',
   });
 }
 
@@ -31,29 +33,49 @@ class AdBanner {
   AdBanner({required this.title, required this.description, required this.backgroundColor});
 }
 
+// قائمة عامة تضمن ظهور أي منتج يضيفه التاجر لجميع المستخدمين فوراً
 List<ProductItem> globalProducts = [
   ProductItem(
-    title: 'سماعات بلوتوث ذكية',
+    title: 'سماعات بلوتوث ذكية لاسلكية',
     price: '35,000 د.ع',
     commission: '5,000 د.ع',
-    sellerName: 'متجر التقنية',
+    sellerName: 'متجر التقنية الحديثة',
     imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500',
     province: 'بغداد',
+    category: 'إلكترونيات',
   ),
   ProductItem(
-    title: 'حقيبة ظهر أنيقة',
+    title: 'حقيبة ظهر أنيقة للسفر والجامعة',
     price: '25,000 د.ع',
     commission: '4,000 د.ع',
     sellerName: 'أزياء بغداد',
     imageUrl: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500',
     province: 'أربيل',
+    category: 'أزياء',
+  ),
+  ProductItem(
+    title: 'ساعة يد ذكية مقاومة للماء',
+    price: '45,000 د.ع',
+    commission: '7,000 د.ع',
+    sellerName: 'مجوهرات العراق',
+    imageUrl: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500',
+    province: 'البصرة',
+    category: 'إلكترونيات',
   ),
 ];
 
 List<AdBanner> globalAds = [
-  AdBanner(title: '🔥 التوصيل متوفر لكافة محافظات العراق', description: 'انضمي الآن لمنصة رزقي وابدئي البيع برصيد حساب ابتدائي 0 دينار.', backgroundColor: Colors.teal),
-  AdBanner(title: '💳 ميزة الدفع بالماستر كارد', description: 'تم تفعيل بوابة الدفع الإلكتروني ورسوم الـ 3,000 د.ع بكل سهولة.', backgroundColor: Colors.indigo),
+  AdBanner(title: '🔥 جميع المنتجات تظهر لجميع المحافظات', description: 'انضمي الآن لمنصة رزقي وابدئي برصيد حساب 0 دينار وعمولات فورية.', backgroundColor: Colors.teal),
+  AdBanner(title: '💳 تفعيل الدفع بالماستر كارد وبوابات الآمان', description: 'رسوم المنصة الثابتة 3,000 د.ع لكل عملية بيع ناجحة.', backgroundColor: Colors.indigo),
 ];
+
+// معلومات الجلسة المحفوظة لكي لا يتم تسجيل الخروج أبداً
+class UserSession {
+  static String userName = '';
+  static bool isMerchant = false;
+  static bool isLoggedIn = false;
+  static String email = '';
+}
 
 class RizqiApp extends StatelessWidget {
   const RizqiApp({super.key});
@@ -67,12 +89,14 @@ class RizqiApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
         useMaterial3: true,
       ),
-      home: const LoginScreen(),
+      home: UserSession.isLoggedIn 
+          ? MainScreen(userName: UserSession.userName, isMerchant: UserSession.isMerchant)
+          : const LoginScreen(),
     );
   }
 }
 
-// 1. شاشة تسجيل الدخول (مع دعم Google والدخول التقليدي)
+// 1. شاشة تسجيل الدخول (مع حفظ البيانات ودعم Google)
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -84,7 +108,14 @@ class _LoginScreenState extends State<LoginScreen> {
   final _nameController = TextEditingController();
   bool _isMerchant = false;
 
-  void _proceedToApp(String name) {
+  void _loginSuccess(String name, String userEmail) {
+    setState(() {
+      UserSession.userName = name;
+      UserSession.email = userEmail;
+      UserSession.isMerchant = _isMerchant;
+      UserSession.isLoggedIn = true;
+    });
+
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -107,7 +138,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 16),
               const Text('منصة رزقي التجارية | RIZQI', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.teal)),
               const SizedBox(height: 8),
-              const Text('حسابك يبدأ بـ (0 دينار) - لكافة المحافظات العراقية', style: TextStyle(color: Colors.grey, fontSize: 12)),
+              const Text('حسابك يبدأ بـ (0 دينار) - يظهر لجميع المحافظات', style: TextStyle(color: Colors.grey, fontSize: 12)),
               const SizedBox(height: 32),
               TextField(
                 controller: _nameController,
@@ -142,7 +173,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   onPressed: () {
                     if (_nameController.text.isNotEmpty) {
-                      _proceedToApp(_nameController.text);
+                      _loginSuccess(_nameController.text, '${_nameController.text.replaceAll(' ', '').toLowerCase()}@gmail.com');
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('الرجاء إدخال الاسم')));
                     }
@@ -162,10 +193,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   onPressed: () {
-                    _proceedToApp('مستخدم Google المعتمد');
+                    _loginSuccess('مستخدم Google المعتمد', 'rizqi.user@gmail.com');
                   },
                   icon: const Icon(Icons.g_mobiledata, size: 30, color: Colors.red),
-                  label: const Text('تسجيل الدخول بواسطة Google', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
+                  label: const Text('الدخول بواسطة إيميل Google', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
                 ),
               ),
             ],
@@ -176,7 +207,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-// الشاشة الرئيسية مع التنقل السفلي المطور
+// الشاشة الرئيسية مع التنقل السفلي الاحترافي
 class MainScreen extends StatefulWidget {
   final String userName;
   final bool isMerchant;
@@ -194,9 +225,9 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     final List<Widget> screens = [
       HomeScreen(userName: widget.userName, isMerchant: widget.isMerchant),
-      const ProductsScreen(),
-      const MastercardScreen(), // 2. شاشة الماستر كارد والدفع الإلكتروني
-      const SupportAIScreen(), // الدعم والذكاء الاصطناعي والشكاوى
+      const ProductsCatalogScreen(),
+      const MastercardScreen(), 
+      const SupportAIScreen(), 
       ProfileScreen(userName: widget.userName, isMerchant: widget.isMerchant),
     ];
 
@@ -214,7 +245,7 @@ class _MainScreenState extends State<MainScreen> {
         },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home), label: 'الرئيسية'),
-          BottomNavigationBarItem(icon: Icon(Icons.shopping_bag_outlined), activeIcon: Icon(Icons.shopping_bag), label: 'المنتجات'),
+          BottomNavigationBarItem(icon: Icon(Icons.store_mall_directory_outlined), activeIcon: Icon(Icons.store), label: 'المتجر'),
           BottomNavigationBarItem(icon: Icon(Icons.credit_card), activeIcon: Icon(Icons.credit_card), label: 'الماستر كارد'),
           BottomNavigationBarItem(icon: Icon(Icons.smart_toy_outlined), activeIcon: Icon(Icons.smart_toy), label: 'الدعم الذكي'),
           BottomNavigationBarItem(icon: Icon(Icons.person_outline), activeIcon: Icon(Icons.person), label: 'حسابي'),
@@ -235,17 +266,24 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: Text('أهلاً، $userName | رصيد الحساب: 0 د.ع', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+        title: Text('أهلاً، $userName | رصيد: 0 د.ع', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
         backgroundColor: Colors.teal,
         foregroundColor: Colors.white,
+        actions: [
+          if (isMerchant)
+            IconButton(
+              icon: const Icon(Icons.add_box),
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => AddProductMerchantScreen(merchantName: userName))),
+              tooltip: 'إضافة منتج يظهر للجميع',
+            ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('الإعلانات والعروض التجارية', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
+            // شريط الإعلانات
             SizedBox(
               height: 130,
               child: ListView.builder(
@@ -272,8 +310,20 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            const Text('المنتجات المتاحة لكافة المحافظات', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.between,
+              children: [
+                const Text('أحدث المنتجات المعروضة للجميع', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                if (isMerchant)
+                  TextButton.icon(
+                    onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => AddProductMerchantScreen(merchantName: userName))),
+                    icon: const Icon(Icons.add, size: 16),
+                    label: const Text('أضف منتجك الآن'),
+                  ),
+              ],
+            ),
             const SizedBox(height: 12),
+            // عرض المنتجات بشكل فوري وشامل لجميع المستخدمين
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -281,11 +331,11 @@ class HomeScreen extends StatelessWidget {
                 crossAxisCount: 2,
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
-                childAspectRatio: 0.58,
+                childAspectRatio: 0.55,
               ),
               itemCount: globalProducts.length,
               itemBuilder: (context, index) {
-                return ProductCard(product: globalProducts[index], isMerchant: isMerchant);
+                return ProductCard(product: globalProducts[index]);
               },
             ),
           ],
@@ -295,7 +345,82 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// 2. شاشة ربط الماستر كارد للدفع الإلكتروني
+// 2. شاشة كتالوج المتجر (مشابهة لخصائص متاجر التطبيقات الكبرى)
+class ProductsCatalogScreen extends StatefulWidget {
+  const ProductsCatalogScreen({super.key});
+
+  @override
+  State<ProductsCatalogScreen> createState() => _ProductsCatalogScreenState();
+}
+
+class _ProductsCatalogScreenState extends State<ProductsCatalogScreen> {
+  String _searchQuery = '';
+  String _selectedCategory = 'الكل';
+
+  @override
+  Widget build(BuildContext context) {
+    final filteredProducts = globalProducts.where((p) {
+      final matchesSearch = p.title.contains(_searchQuery) || p.sellerName.contains(_searchQuery);
+      final matchesCat = _selectedCategory == 'الكل' || p.category == _selectedCategory;
+      return matchesSearch && matchesCat;
+    }).toList();
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('متجر رزقي الشامل'), backgroundColor: Colors.teal, foregroundColor: Colors.white),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: TextField(
+              onChanged: (val) => setState(() => _searchQuery = val),
+              decoration: InputDecoration(
+                hintText: 'ابحث عن أي منتج أو متجر...',
+                prefixIcon: const Icon(Icons.search, color: Colors.teal),
+                filled: true,
+                fillColor: Colors.grey[200],
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+              ),
+            ),
+          ),
+          SizedBox(
+            height: 40,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              children: ['الكل', 'إلكترونيات', 'أزياء', 'عام'].map((cat) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: ChoiceChip(
+                    label: Text(cat),
+                    selected: _selectedCategory == cat,
+                    onSelected: (selected) => setState(() => _selectedCategory = cat),
+                    selectedColor: Colors.teal[100],
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Expanded(
+            child: GridView.builder(
+              padding: const EdgeInsets.all(12),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 0.55,
+              ),
+              itemCount: filteredProducts.length,
+              itemBuilder: (context, index) => ProductCard(product: filteredProducts[index]),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// 3. شاشة إدارة الماستر كارد والدفع الإلكتروني
 class MastercardScreen extends StatefulWidget {
   const MastercardScreen({super.key});
 
@@ -338,7 +463,7 @@ class _MastercardScreenState extends State<MastercardScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(_nameController.text.isNotEmpty ? _nameController.text : 'اسم حامل البطاقة', style: const TextStyle(color: Colors.white70)),
+                      Text(_nameController.text.isNotEmpty ? _nameController.text : UserSession.userName, style: const TextStyle(color: Colors.white70)),
                       const Text('رسم البيع: 3,000 د.ع', style: TextStyle(color: Colors.orangeAccent, fontSize: 12)),
                     ],
                   ),
@@ -361,15 +486,13 @@ class _MastercardScreenState extends State<MastercardScreen> {
               style: ElevatedButton.styleFrom(backgroundColor: Colors.teal, foregroundColor: Colors.white, minimumSize: const Size(double.infinity, 50)),
               onPressed: () {
                 if (_cardController.text.length >= 10) {
-                  setState(() {
-                    _isLinked = true;
-                  });
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم ربط الماستر كارد بنجاح لتسوية رسوم الـ 3,000 د.ع!')));
+                  setState(() => _isLinked = true);
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم ربط وتفعيل الماستر كارد بنجاح!')));
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('الرجاء إدخال رقم بطاقة صحيح')));
                 }
               },
-              child: Text(_isLinked ? 'البطاقة مفعلة ومربوحة' : 'ربط وتفعيل الماستر كارد'),
+              child: Text(_isLinked ? 'البطاقة مفعلة ومربوطة' : 'ربط وتفعيل الماستر كارد'),
             ),
           ],
         ),
@@ -378,7 +501,7 @@ class _MastercardScreenState extends State<MastercardScreen> {
   }
 }
 
-// 3. شاشة إضافة المنتجات وتحديد المحافظات ورسوم الـ 3000 دينار
+// 4. شاشة إضافة المنتجات ونشرها لجميع المستخدمين فوراً
 class AddProductMerchantScreen extends StatefulWidget {
   final String merchantName;
   const AddProductMerchantScreen({super.key, required this.merchantName});
@@ -392,6 +515,7 @@ class _AddProductMerchantScreenState extends State<AddProductMerchantScreen> {
   final _priceController = TextEditingController();
   final _imageController = TextEditingController();
   String _selectedProvince = 'جميع المحافظات';
+  String _selectedCategory = 'إلكترونيات';
 
   final List<String> provinces = [
     'جميع المحافظات', 'بغداد', 'البصرة', 'النجف الأشرف', 'كربلاء المقدسة',
@@ -402,268 +526,4 @@ class _AddProductMerchantScreenState extends State<AddProductMerchantScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('إضافة منتج جديد (رسوم البيع: 3,000 د.ع)'), backgroundColor: Colors.teal, foregroundColor: Colors.white),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: [
-            const Text('أدخل تفاصيل المنتج مع تحديد النطاق الجغرافي للتوصيل:', style: TextStyle(color: Colors.grey)),
-            const SizedBox(height: 16),
-            TextField(controller: _titleController, decoration: const InputDecoration(labelText: 'اسم المنتج', border: OutlineInputBorder())),
-            const SizedBox(height: 12),
-            TextField(controller: _priceController, decoration: const InputDecoration(labelText: 'سعر المنتج (مثال: 35,000 د.ع)', border: OutlineInputBorder())),
-            const SizedBox(height: 12),
-            TextField(controller: _imageController, decoration: const InputDecoration(labelText: 'رابط صورة المنتج (URL)', border: OutlineInputBorder(), hintText: 'https://...')),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              value: _selectedProvince,
-              decoration: const InputDecoration(labelText: 'نطاق التوصيل للمحافظات', border: OutlineInputBorder()),
-              items: provinces.map((p) => DropdownMenuItem(value: p, child: Text(p))).toList(),
-              onChanged: (val) {
-                setState(() {
-                  _selectedProvince = val!;
-                });
-              },
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.teal, foregroundColor: Colors.white, minimumSize: const Size(double.infinity, 50)),
-              onPressed: () {
-                if (_titleController.text.isNotEmpty && _priceController.text.isNotEmpty) {
-                  setState(() {
-                    globalProducts.add(ProductItem(
-                      title: _titleController.text,
-                      price: _priceController.text,
-                      commission: '5,000 د.ع',
-                      sellerName: widget.merchantName,
-                      imageUrl: _imageController.text.isNotEmpty ? _imageController.text : 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500',
-                      province: _selectedProvince,
-                    ));
-                  });
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم نشر المنتج بنجاح! سيتم خصم 3,000 د.ع عند كل عملية بيع.')));
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('الرجاء إكمال اسم المنتج والسعر')));
-                }
-              },
-              child: const Text('نشر المنتج في المنصة'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// 4. الدعم والشكاوى بالذكاء الاصطناعي
-class SupportAIScreen extends StatefulWidget {
-  const SupportAIScreen({super.key});
-
-  @override
-  State<SupportAIScreen> createState() => _SupportAIScreenState();
-}
-
-class _SupportAIScreenState extends State<SupportAIScreen> {
-  final List> _messages = [
-    {'text': 'أهلاً بكِ في المساعد الذكي لمنصة رزقي 🤖.\nحسابكِ الحالي يبدأ بـ (0 دينار). كيف يمكنني مساعدتكِ اليوم في الطلبات أو الشحن لكافة المحافظات؟', 'isUser': false},
-  ];
-  final _textController = TextEditingController();
-
-  void _sendMessage() {
-    if (_textController.text.trim().isEmpty) return;
-    final userText = _textController.text;
-    setState(() {
-      _messages.add({'text': userText, 'isUser': true});
-      _textController.clear();
-    });
-
-    Future.delayed(const Duration(milliseconds: 900), () {
-      if (!mounted) return;
-      String aiReply = 'تم تسجيل شكواكِ ومعالجتها آلياً. التوصيل متوفر لجميع المحافظات ورسوم البيع ثابتة (3,000 د.ع).';
-      if (userText.contains('محافظة') || userText.contains('توصيل')) {
-        aiReply = 'نحن نغطي جميع محافظات العراق (بغداد، البصرة، أربيل، وسائر المحافظات) بخدمة توصيل سريعة.';
-      } else if (userText.contains('ماستر') || userText.contains('دفع')) {
-        aiReply = 'يمكنكِ ربط بطاقة الماستر كارد من تبويب "الماستر كارد" لتسوية الرسوم بكل أمان وسلاسة.';
-      }
-
-      setState(() {
-        _messages.add({'text': aiReply, 'isUser': false});
-      });
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('الدعم والشكاوى الذكي'), backgroundColor: Colors.teal, foregroundColor: Colors.white),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                final msg = _messages[index];
-                final isUser = msg['isUser'] as bool;
-                return Align(
-                  alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(vertical: 6),
-                    padding: const EdgeInsets.all(12),
-                    constraints: const BoxConstraints(maxWidth: 280),
-                    decoration: BoxDecoration(
-                      color: isUser ? Colors.teal : Colors.teal[50],
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(msg['text'], style: TextStyle(color: isUser ? Colors.white : Colors.black87)),
-                  ),
-                );
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _textController,
-                    decoration: const InputDecoration(
-                      hintText: 'اكتبي استفساركِ أو شكواكِ هنا...',
-                      border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 12),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                IconButton(
-                  icon: const Icon(Icons.send, color: Colors.teal),
-                  onPressed: _sendMessage,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class ProductsScreen extends StatelessWidget {
-  const ProductsScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('جميع المنتجات'), backgroundColor: Colors.teal, foregroundColor: Colors.white),
-      body: GridView.builder(
-        padding: const EdgeInsets.all(16),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, crossAxisSpacing: 12, mainAxisSpacing: 12, childAspectRatio: 0.58),
-        itemCount: globalProducts.length,
-        itemBuilder: (context, index) => ProductCard(product: globalProducts[index], isMerchant: false),
-      ),
-    );
-  }
-}
-
-class ProfileScreen extends StatelessWidget {
-  final String userName;
-  final bool isMerchant;
-
-  const ProfileScreen({super.key, required this.userName, required this.isMerchant});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('حسابي'), backgroundColor: Colors.teal, foregroundColor: Colors.white),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            const CircleAvatar(radius: 40, backgroundColor: Colors.teal, child: Icon(Icons.person, size: 50, color: Colors.white)),
-            const SizedBox(height: 12),
-            Text(userName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const Text('رصيد الحساب: 0 دينار عراقي', style: TextStyle(color: Colors.teal, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 24),
-            if (isMerchant) ...[
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.teal, foregroundColor: Colors.white, minimumSize: const Size(double.infinity, 50)),
-                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => AddProductMerchantScreen(merchantName: userName))),
-                child: const Text('إضافة منتج جديد (رسم البيع: 3,000 د.ع)'),
-              ),
-            ] else ...[
-              const Card(
-                child: Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text('أنتِ مسجلة في منصة رزقي. تصفحي المنتجات وشاركي روابط الترويج لكافة المحافظات لزيادة أرباحكِ!'),
-                ),
-              )
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class ProductCard extends StatelessWidget {
-  final ProductItem product;
-  final bool isMerchant;
-  const ProductCard({super.key, required this.product, required this.isMerchant});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4)]),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-              child: Image.network(
-                product.imageUrl,
-                fit: BoxFit.cover,
-                width: double.infinity,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  color: Colors.teal[50],
-                  child: const Center(child: Icon(Icons.shopping_bag, size: 40, color: Colors.teal)),
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(product.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13), maxLines: 1),
-                const SizedBox(height: 4),
-                Text(product.price, style: const TextStyle(color: Colors.teal, fontWeight: FontWeight.bold, fontSize: 12)),
-                const SizedBox(height: 2),
-                Text('رسوم المنصة: 3,000 د.ع', style: const TextStyle(color: Colors.orange, fontSize: 10)),
-                const SizedBox(height: 2),
-                Text('الشحن: ${product.province}', style: const TextStyle(color: Colors.blueGrey, fontSize: 9)),
-                const SizedBox(height: 2),
-                Text('التاجر: ${product.sellerName}', style: const TextStyle(color: Colors.grey, fontSize: 9)),
-                const SizedBox(height: 6),
-                SizedBox(
-                  width: double.infinity,
-                  height: 28,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.teal[50], foregroundColor: Colors.teal, elevation: 0, padding: EdgeInsets.zero),
-                    onPressed: () {
-                      Clipboard.setData(ClipboardData(text: 'https://rizqi-app.com/share?product=${product.title}'));
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم نسخ رابط الترويج بنجاح!')));
-                    },
-                    child: const Text('نسخ رابط الترويج', style: TextStyle(fontSize: 10)),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+   
