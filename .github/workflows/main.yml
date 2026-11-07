@@ -24,8 +24,10 @@ jobs:
           flutter-version: '3.19.0'
           channel: 'stable'
 
-      - name: Clean Project
-        run: flutter clean
+      - name: Recreate Clean Android Project
+        run: |
+          rm -rf android
+          flutter create . --platforms=android
 
       - name: Install dependencies
         run: flutter pub get
