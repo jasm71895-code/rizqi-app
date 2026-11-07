@@ -24,10 +24,11 @@ jobs:
           flutter-version: '3.19.0'
           channel: 'stable'
 
-      - name: Recreate Clean Android Project
+      - name: Fix Package Name & Recreate Android
         run: |
+          sed -i 's/name: rizqi-app/name: rizqi_app/g' pubspec.yaml || true
           rm -rf android
-          flutter create . --platforms=android
+          flutter create . --platforms=android --project-name=rizqi_app
 
       - name: Install dependencies
         run: flutter pub get
